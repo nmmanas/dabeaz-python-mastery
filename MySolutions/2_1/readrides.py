@@ -141,6 +141,60 @@ def read_rides_as_class_with_slots(filename):
             records.append(record)
     return records
 
+
+from dataclasses import dataclass
+
+def read_rides_as_data_class(filename):
+    '''
+    Read the bus ride data as a list of objects from a data class
+    '''
+    records = []
+    
+    @dataclass
+    class Row:
+        route: str
+        date: str
+        daytype: str
+        rides: int
+
+    with open(filename) as f:
+        rows = csv.reader(f)
+        _ = next(rows)     # Skip headers
+        for row in rows:
+            route = row[0]
+            date = row[1]
+            daytype = row[2]
+            rides = int(row[3])
+            record = Row(route, date, daytype, rides)
+            records.append(record)
+    return records
+
+
+def read_rides_as_data_class_with_slots(filename):
+    '''
+    Read the bus ride data as a list of objects from a data class with slots
+    '''
+    records = []
+    
+    @dataclass(slots=True)
+    class Row:
+        route: str
+        date: str
+        daytype: str
+        rides: int
+
+    with open(filename) as f:
+        rows = csv.reader(f)
+        _ = next(rows)     # Skip headers
+        for row in rows:
+            route = row[0]
+            date = row[1]
+            daytype = row[2]
+            rides = int(row[3])
+            record = Row(route, date, daytype, rides)
+            records.append(record)
+    return records
+
 if __name__ == '__main__':
     import tracemalloc
     tracemalloc.start()
@@ -166,3 +220,13 @@ if __name__ == '__main__':
 
     rows = read_rides_as_class_with_slots('Data/ctabus.csv')
     print('Memory Use (Class with Slots): Current %.2fMB, Peak %.2fMB' % tuple(x / (1024 * 1024) for x in tracemalloc.get_traced_memory()))
+    
+    tracemalloc.clear_traces()
+
+    rows = read_rides_as_data_class('Data/ctabus.csv')
+    print('Memory Use (Data Class): Current %.2fMB, Peak %.2fMB' % tuple(x / (1024 * 1024) for x in tracemalloc.get_traced_memory()))
+    
+    tracemalloc.clear_traces()
+
+    rows = read_rides_as_data_class_with_slots('Data/ctabus.csv')
+    print('Memory Use (Data Class with Slots): Current %.2fMB, Peak %.2fMB' % tuple(x / (1024 * 1024) for x in tracemalloc.get_traced_memory()))
